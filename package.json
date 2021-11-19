@@ -1,0 +1,25 @@
+{
+  "name": "java-utils",
+  "version": "0.1.0",
+  "description": "Java related utils.",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Eskibear/node-java-utils.git"
+  },
+  "author": "Eskibear",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Eskibear/node-java-utils/issues"
+  },
+  "homepage": "https://github.com/Eskibear/node-java-utils#readme",
+  "devDependencies": {
+    "chai": "^4.3.4",
+    "mocha": "^9.1.3",
+    "typescript": "^4.5.2"
+  }
+}
