@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as sdkman from "./from/sdkman";
 import * as linux from "./from/linux";
+import * as windows from "./from/windows";
 import * as macOS from "./from/macOS";
 import * as envs from "./from/envs";
 import * as logger from "./logger";
@@ -37,6 +38,9 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     if (isMac) {
         candidates.push(...await macOS.candidates());
     }
+    if (isWindows) {
+        candidates.push(...await windows.candidates());
+    }
 
     // from envs, e.g. JAVA_HOME, PATH
     candidates.push(...envs.candidates());
@@ -44,7 +48,8 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     // dedup
     const candidateSet = new Set(candidates);
     const promises: Promise<IJavaRuntime>[] = Array.from(candidateSet).map(parseRuntime);
-    return Promise.all(promises);
+    const runtimes = await Promise.all(promises);
+    return runtimes.filter(r => r.version !== undefined);
 }
 
 async function parseRuntime(homedir: string): Promise<IJavaRuntime> {
