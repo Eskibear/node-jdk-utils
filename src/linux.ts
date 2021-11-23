@@ -1,7 +1,7 @@
 import * as os from "os";
 import * as fs from "fs";
 import * as path from "path";
-import * as logger from "./logger";
+import { log } from "./logger";
 
 const JDK_BASE_DIRS = [
     "/usr/lib/jvm", // Ubuntu
@@ -17,7 +17,7 @@ export async function candidates(): Promise<string[]> {
             const homedirs = files.filter(file => file.isDirectory()).map(file => path.join(baseDir, file.name));
             ret.push(...homedirs);
         } catch (error) {
-            logger.log(error);
+            log(error);
         }
     }
     return ret;
