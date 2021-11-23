@@ -6,7 +6,7 @@
   "scripts": {
     "prepack": "npm run build",
     "build": "tsc",
-    "test": "mocha --reporter spec"
+    "test": "npm run build && mocha --reporter spec"
   },
   "repository": {
     "type": "git",

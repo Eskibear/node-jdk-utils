@@ -3,6 +3,7 @@ import * as path from "path";
 import * as sdkman from "./sdkman";
 import * as linux from "./linux";
 import * as macOS from "./macOS";
+import * as envs from "./envs";
 import * as logger from "./logger";
 
 const isWindows: boolean = process.platform.indexOf("win") === 0;
@@ -36,6 +37,9 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     if (isMac) {
         candidates.push(...await macOS.candidates());
     }
+
+    // from envs, e.g. JAVA_HOME, PATH
+    candidates.push(...envs.candidates());
 
     // dedup
     const candidateSet = new Set(candidates);

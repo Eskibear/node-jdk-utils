@@ -9,7 +9,8 @@ describe("test this module", () => {
     it("should list installed JDKs", async () => {
         const label = "findRuntimes";
         console.time(label);
-        await utils.findRuntimes();
+        const jdks = await utils.findRuntimes();
+        console.log(jdks);
         console.timeEnd(label);
     });
 });
