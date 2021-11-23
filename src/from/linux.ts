@@ -1,9 +1,11 @@
 import * as fs from "fs";
 import * as path from "path";
-import { log } from "./logger";
+import { log } from "../logger";
 
 const JDK_BASE_DIRS = [
-    "/Library/Java/JavaVirtualMachines",
+    "/usr/lib/jvm", // Ubuntu
+    "/usr/java", // Java 8 on CentOS?
+    // ... add more if necessary
 ];
 
 export async function candidates(): Promise<string[]> {
@@ -11,7 +13,7 @@ export async function candidates(): Promise<string[]> {
     for (const baseDir of JDK_BASE_DIRS) {
         try {
             const files = await fs.promises.readdir(baseDir, { withFileTypes: true });
-            const homedirs = files.filter(file => file.isDirectory()).map(file => path.join(baseDir, file.name, "Contents", "Home" /** macOS specific subfolder */));
+            const homedirs = files.filter(file => file.isDirectory()).map(file => path.join(baseDir, file.name));
             ret.push(...homedirs);
         } catch (error) {
             log(error);

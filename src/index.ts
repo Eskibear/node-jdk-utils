@@ -1,9 +1,9 @@
 import * as fs from "fs";
 import * as path from "path";
-import * as sdkman from "./sdkman";
-import * as linux from "./linux";
-import * as macOS from "./macOS";
-import * as envs from "./envs";
+import * as sdkman from "./from/sdkman";
+import * as linux from "./from/linux";
+import * as macOS from "./from/macOS";
+import * as envs from "./from/envs";
 import * as logger from "./logger";
 
 const isWindows: boolean = process.platform.indexOf("win") === 0;

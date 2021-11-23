@@ -1,7 +1,7 @@
 import * as os from "os";
 import * as fs from "fs";
 import * as path from "path";
-import { log } from "./logger";
+import { log } from "../logger";
 
 const SDKMAN_DIR = process.env.SDKMAN_DIR ?? path.join(os.homedir(), ".sdkman");
 const JDK_BASE_DIR = path.join(SDKMAN_DIR, "candidates", "java");
