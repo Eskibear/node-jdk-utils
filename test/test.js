@@ -10,7 +10,8 @@ describe("test this module", () => {
         const label = "findRuntimes";
         console.time(label);
         const jdks = await utils.findRuntimes();
-        console.log(jdks);
+        console.log("JDK found: ", jdks.length);
+        jdks.forEach(jdk => console.log(jdk.homedir));
         console.timeEnd(label);
     });
 });

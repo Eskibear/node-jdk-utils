@@ -1,11 +1,13 @@
 import * as fs from "fs";
 import * as path from "path";
-import * as sdkman from "./from/sdkman";
-import * as linux from "./from/linux";
-import * as windows from "./from/windows";
-import * as macOS from "./from/macOS";
 import * as envs from "./from/envs";
+import * as jenv from "./from/jenv";
+import * as linux from "./from/linux";
+import * as macOS from "./from/macOS";
+import * as sdkman from "./from/sdkman";
+import * as windows from "./from/windows";
 import * as logger from "./logger";
+import { deDup } from "./utils";
 
 const isWindows: boolean = process.platform.indexOf("win") === 0;
 const isMac: boolean = process.platform.indexOf("darwin") === 0;
@@ -31,7 +33,7 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     candidates.push(...await sdkman.candidates());
     // TBD: other candidates
     
-    // platform-specific
+    // platform-specific default location
     if (isLinux) {
         candidates.push(...await linux.candidates());
     }
@@ -45,9 +47,11 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     // from envs, e.g. JAVA_HOME, PATH
     candidates.push(...envs.candidates());
 
+    // jEnv
+    candidates.push(...await jenv.candidates())
+
     // dedup
-    const candidateSet = new Set(candidates);
-    const promises: Promise<IJavaRuntime>[] = Array.from(candidateSet).map(parseRuntime);
+    const promises: Promise<IJavaRuntime>[] = deDup(candidates).map(parseRuntime);
     const runtimes = await Promise.all(promises);
     return runtimes.filter(r => r.version !== undefined);
 }
