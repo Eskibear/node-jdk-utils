@@ -6,12 +6,56 @@ describe("test this module", () => {
     it("should work with require", () => {
         expect(utils).to.not.undefined;
     });
-    it("should list installed JDKs", async () => {
-        const label = "findRuntimes";
+
+    it("should list valid JDKs", async () => {
+        const label = "cost";
         console.time(label);
         const jdks = await utils.findRuntimes();
-        console.log("JDK found: ", jdks.length);
-        jdks.forEach(jdk => console.log(jdk.homedir));
         console.timeEnd(label);
+        console.log("JDK found: ", jdks.length);
+        for(const jdk of jdks) {
+            expect(jdk.hasJava).to.not.undefined;
+        }
+        jdks.forEach(jdk => console.log(jdk.homedir));
+    });
+
+    it("should fetch versions", async () => {
+        const label = "withVersion";
+        console.time(label);
+        const jdks = await utils.findRuntimes({ withVersion: true });
+        console.timeEnd(label);
+        console.log("JDK found: ", jdks.length);
+        console.log("homedir", "majorVersion");
+        jdks.forEach(jdk => console.log(jdk.homedir, jdk.version?.major));
+    });
+
+    it("should check javac", async () => {
+        const label = "checkJavac";
+        console.time(label);
+        const jdks = await utils.findRuntimes({ checkJavac: true });
+        console.timeEnd(label);
+        console.log("JDK found: ", jdks.length);
+        console.log("homedir", "hasJavac");
+        jdks.forEach(jdk => console.log(jdk.homedir, jdk.hasJavac));
+    });
+
+    it("should check java binary with fuzzy search", async () => {
+        const label = "fuzzy";
+        console.time(label);
+        const jdks = await utils.findRuntimes({ fuzzy: true });
+        console.timeEnd(label);
+        console.log("JDK found: ", jdks.length);
+        console.log("homedir", "hasJava", "hasJavac", "majorVersion");
+        jdks.forEach(jdk => console.log(jdk.homedir, jdk.hasJava, jdk.hasJavac, jdk.version?.major));
+    });
+
+    it("should list all possible locations with full-fuzzy search", async () => {
+        const label = "fuzzy,checkJavac,withVersion";
+        console.time(label);
+        const jdks = await utils.findRuntimes({ fuzzy: true, checkJavac: true, withVersion: true });
+        console.timeEnd(label);
+        console.log("JDK found: ", jdks.length);
+        console.log("homedir", "hasJava", "hasJavac", "majorVersion");
+        jdks.forEach(jdk => console.log(jdk.homedir, jdk.hasJava, jdk.hasJavac, jdk.version?.major));
     });
 });

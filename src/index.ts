@@ -13,8 +13,13 @@ const isWindows: boolean = process.platform.indexOf("win") === 0;
 const isMac: boolean = process.platform.indexOf("darwin") === 0;
 const isLinux: boolean = process.platform.indexOf("linux") === 0;
 
+const JAVA_FILENAME = isWindows ? "java.exe" : "java";
+const JAVAC_FILENAME = isWindows ? "javac.exe" : "javac";
+
 interface IOptions {
     withVersion?: boolean;
+    checkJavac?: boolean;
+    fuzzy?: boolean;
 }
 
 interface IJavaVersion {
@@ -25,6 +30,8 @@ interface IJavaVersion {
 interface IJavaRuntime {
     homedir: string;
     version?: IJavaVersion;
+    hasJava?: boolean;
+    hasJavac?: boolean;
 }
 
 export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> {
@@ -50,14 +57,61 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     // jEnv
     candidates.push(...await jenv.candidates())
 
-    // dedup
-    const promises: Promise<IJavaRuntime>[] = deDup(candidates).map(parseRuntime);
-    const runtimes = await Promise.all(promises);
-    return runtimes.filter(r => r.version !== undefined);
+    // dedup and construct runtimes
+    let runtimes: IJavaRuntime[] = deDup(candidates).map((homedir) => ({ homedir }));
+
+
+    // verification
+    if (true /* always check java binary */) {
+        runtimes = await Promise.all(runtimes.map(checkJavaFile));
+        if (true /* java binary is required for a valid runtime */) {
+            runtimes = runtimes.filter(r => r.hasJava);
+        }
+    }
+
+    if (options?.checkJavac) {
+        runtimes = await Promise.all(runtimes.map(checkJavacFile));
+        if (!options?.fuzzy) {
+            runtimes = runtimes.filter(r => r.hasJavac);
+        }
+    }
+
+    if (options?.withVersion) {
+        runtimes = await Promise.all(runtimes.map(parseRuntime));
+        if (!options?.fuzzy) {
+            runtimes = runtimes.filter(r => r.version !== undefined);
+        }
+    }
+
+    return runtimes;
 }
 
-async function parseRuntime(homedir: string): Promise<IJavaRuntime> {
-    const runtime: IJavaRuntime = { homedir };
+async function checkJavaFile(runtime: IJavaRuntime): Promise<IJavaRuntime> {
+    const { homedir } = runtime;
+    const binary = path.join(homedir, "bin", JAVA_FILENAME);
+    try {
+        await fs.promises.access(binary, fs.constants.F_OK);
+        runtime.hasJava = true;
+    } catch (error) {
+        runtime.hasJava = false;
+    }
+    return runtime;
+}
+
+async function checkJavacFile(runtime: IJavaRuntime): Promise<IJavaRuntime> {
+    const { homedir } = runtime;
+    const binary = path.join(homedir, "bin", JAVAC_FILENAME);
+    try {
+        await fs.promises.access(binary, fs.constants.F_OK);
+        runtime.hasJavac = true;
+    } catch (error) {
+        runtime.hasJavac = false;
+    }
+    return runtime;
+}
+
+async function parseRuntime(runtime: IJavaRuntime): Promise<IJavaRuntime> {
+    const { homedir } = runtime;
     const releaseFile = path.join(homedir, "release");
     try {
         const content = await fs.promises.readFile(releaseFile, { encoding: "utf-8" });
