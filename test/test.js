@@ -13,9 +13,6 @@ describe("test this module", () => {
         const jdks = await utils.findRuntimes();
         console.timeEnd(label);
         console.log("JDK found: ", jdks.length);
-        for(const jdk of jdks) {
-            expect(jdk.hasJava).to.not.undefined;
-        }
         jdks.forEach(jdk => console.log(jdk.homedir));
     });
 
@@ -57,5 +54,14 @@ describe("test this module", () => {
         console.log("JDK found: ", jdks.length);
         console.log("homedir", "hasJava", "hasJavac", "majorVersion");
         jdks.forEach(jdk => console.log(jdk.homedir, jdk.hasJava, jdk.hasJavac, jdk.version?.major));
+    });
+
+    it("should list with tags", async () => {
+        const label = "withTags";
+        console.time(label);
+        const jdks = await utils.findRuntimes({ withTags: true, withVersion: true, checkJavac: true });
+        console.timeEnd(label);
+        console.log("JDK found: ", jdks.length);
+        console.log(jdks);
     });
 });

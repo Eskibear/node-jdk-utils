@@ -30,10 +30,8 @@ require("java-utils").findRuntimes().then(console.log)
 /*
 [{
     homedir: '/home/username/.sdkman/candidates/java/17.0.1-ms',
-    hasJava: true
   }, {
     homedir: '/usr/lib/jvm/java-11-openjdk-amd64',
-    hasJava: true 
   },
 ...
 ]
@@ -47,14 +45,12 @@ await findRuntimes({checkJavac: true, withVersion: true});
 /*
 [{
     homedir: '/home/yanzh/.sdkman/candidates/java/17.0.1-ms',
-    hasJava: true,
     hasJavac: true,
-    version: { openjdk_version: '17.0.1', major: 17 }
+    version: { java_version: '17.0.1', major: 17 }
   }, {
     homedir: '/usr/lib/jvm/java-11-openjdk-amd64',
-    hasJava: true,
     hasJavac: true,
-    version: { openjdk_version: '11.0.7', major: 11 }
+    version: { java_version: '11.0.7', major: 11 }
   },
 ...
 ]

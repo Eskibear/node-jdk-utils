@@ -18,13 +18,26 @@ const JAVA_FILENAME = isWindows ? "java.exe" : "java";
 const JAVAC_FILENAME = isWindows ? "javac.exe" : "javac";
 
 interface IOptions {
+    /**
+     * whether to parse version.
+     */
     withVersion?: boolean;
+    /**
+     * whether to check existence of javac or javac.exe
+     */
     checkJavac?: boolean;
+    /**
+     * whether to include all invalid runtimes, e.g. when JAVA_HOME points to an invalid folder.
+     */
     fuzzy?: boolean;
+    /**
+     * whether to include tags for detailed information
+     */
+    withTags?: boolean;
 }
 
 interface IJavaVersion {
-    openjdk_version: string;
+    java_version: string;
     major: number;
 }
 
@@ -38,13 +51,31 @@ interface IJavaRuntime {
      */
     version?: IJavaVersion;
     /**
-     * Whether java or java.exe exists.
+     * Whether java or java.exe exists, indicating it's a valid runtime.
      */
-    hasJava?: boolean;
+    _valid?: boolean;
     /**
      * Whether javac or javac.exe exists.
      */
     hasJavac?: boolean;
+
+    /**
+     * is same as env.JAVA_HOME
+     */
+    isJavaHomeEnv?: boolean;
+
+    /**
+     * is same as env.JDK_HOME
+     */
+    isJdkHomeEnv?: boolean;
+
+    /**
+     * '<homedir>/bin' is one of env.PATH entries
+     */
+    isInPathEnv?: boolean;
+
+    isFromSDKMAN?: boolean;
+    isFromJENV?: boolean;
 }
 
 /**
@@ -54,50 +85,76 @@ interface IJavaRuntime {
  * @returns 
  */
 export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> {
+    const store = new RuntimeStore();
     const candidates: string[] = [];
+
+    const updateCandidates = (homedirs: string[], updater?: (r: IJavaRuntime) => IJavaRuntime) => {
+        if (options?.withTags) {
+            store.updateRuntimes(homedirs, updater);
+        } else {
+            candidates.push(...homedirs);
+        }
+    }
+
     // SDKMAN
-    candidates.push(...await sdkman.candidates());
+    const fromSdkman = await sdkman.candidates();
+    updateCandidates(fromSdkman, (r) => ({ ...r, isFromSDKMAN: true }));
     
     // platform-specific default location
     if (isLinux) {
-        candidates.push(...await linux.candidates());
+        updateCandidates(await linux.candidates());
     }
     if (isMac) {
-        candidates.push(...await macOS.candidates());
+        updateCandidates(await macOS.candidates());
     }
     if (isWindows) {
-        candidates.push(...await windows.candidates());
+        updateCandidates(await windows.candidates());
     }
 
-    // from envs, e.g. JAVA_HOME, PATH
-    candidates.push(...envs.candidates());
+    // from env: JDK_HOME
+    const fromJdkHome = envs.candidatesFromSpecificEnv("JDK_HOME");
+    if (fromJdkHome) {
+        updateCandidates([fromJdkHome], (r) => ({ ...r, isJdkHomeEnv: true }));
+    }
+
+    // from env: JAVA_HOME
+    const fromJavaHome = envs.candidatesFromSpecificEnv("JAVA_HOME");
+    if (fromJavaHome) {
+        updateCandidates([fromJavaHome], (r) => ({ ...r, isJavaHomeEnv: true }));
+    }
+
+    // from env: PATH
+    const fromPath = envs.candidatesFromPath();
+    updateCandidates(fromPath, (r) => ({ ...r, isInPathEnv: true }));
 
     // jEnv
-    candidates.push(...await jenv.candidates())
+    const fromJENV = await jenv.candidates();
+    updateCandidates(fromJENV, (r) => ({ ...r, isFromJENV: true }));
 
     // dedup and construct runtimes
-    let runtimes: IJavaRuntime[] = deDup(candidates).map((homedir) => ({ homedir }));
-
+    let runtimes: IJavaRuntime[] = options?.withTags ? store.allRuntimes()
+        : deDup(candidates).map((homedir) => ({ homedir }));
 
     // verification
     if (true /* always check java binary */) {
         runtimes = await Promise.all(runtimes.map(checkJavaFile));
         if (true /* java binary is required for a valid runtime */) {
-            runtimes = runtimes.filter(r => r.hasJava);
+            runtimes = runtimes.filter(r => r._valid);
         }
     }
 
     if (options?.checkJavac) {
         runtimes = await Promise.all(runtimes.map(checkJavacFile));
-        if (!options?.fuzzy) {
-            runtimes = runtimes.filter(r => r.hasJavac);
-        }
     }
 
     if (options?.withVersion) {
         runtimes = await Promise.all(runtimes.map(parseVersion));
-        if (!options?.fuzzy) {
-            runtimes = runtimes.filter(r => r.version !== undefined);
+    }
+
+    // clean up private fields by default
+    if (!options?.fuzzy) {
+        for (const r of runtimes) {
+            delete r._valid;
         }
     }
 
@@ -109,9 +166,9 @@ async function checkJavaFile(runtime: IJavaRuntime): Promise<IJavaRuntime> {
     const binary = path.join(homedir, "bin", JAVA_FILENAME);
     try {
         await fs.promises.access(binary, fs.constants.F_OK);
-        runtime.hasJava = true;
+        runtime._valid = true;
     } catch (error) {
-        runtime.hasJava = false;
+        runtime._valid = false;
     }
     return runtime;
 }
@@ -138,11 +195,11 @@ async function parseVersion(runtime: IJavaRuntime): Promise<IJavaRuntime> {
         if (!match) {
             return runtime;
         }
-        const openjdk_version = match[1];
-        const major = parseMajorVersion(openjdk_version);
+        const java_version = match[1];
+        const major = parseMajorVersion(java_version);
 
         runtime.version = {
-            openjdk_version,
+            java_version,
             major
         };
     } catch (error) {
@@ -174,10 +231,10 @@ async function checkJavaVersionByCLI(javaHome: string): Promise<IJavaVersion | u
             if (!match) {
                 return resolve(undefined);
             }
-            const openjdk_version = match[1];
-            const major = parseMajorVersion(openjdk_version);
+            const java_version = match[1];
+            const major = parseMajorVersion(java_version);
             resolve({
-                openjdk_version,
+                java_version,
                 major
             });
         });
@@ -200,4 +257,26 @@ function parseMajorVersion(version: string): number {
         javaVersion = parseInt(match[0]);
     }
     return javaVersion;
+}
+
+class RuntimeStore {
+    private map: Map<string, IJavaRuntime> = new Map();
+    constructor() {}
+
+    public updateRuntimes(homedirs: string[], updater?: (r: IJavaRuntime) => IJavaRuntime) {
+        for(const h of homedirs) {
+            this.updateRuntime(h, updater);
+        }
+    }
+
+    public updateRuntime(homedir: string, updater?: (r: IJavaRuntime) => IJavaRuntime) {
+        const runtime = this.map.get(homedir) || { homedir };
+        this.map.set(homedir, updater?.(runtime) ?? runtime);
+    }
+
+    public allRuntimes() {
+        console.log("Store.runtimes")
+        console.log(this.map.values());
+        return Array.from(this.map.values());
+    }
 }
