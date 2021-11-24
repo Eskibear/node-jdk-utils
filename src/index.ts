@@ -29,17 +29,34 @@ interface IJavaVersion {
 }
 
 interface IJavaRuntime {
+    /**
+     * Home directory of Java runtime.
+     */
     homedir: string;
+    /**
+     * Version information. 
+     */
     version?: IJavaVersion;
+    /**
+     * Whether java or java.exe exists.
+     */
     hasJava?: boolean;
+    /**
+     * Whether javac or javac.exe exists.
+     */
     hasJavac?: boolean;
 }
 
+/**
+ * Find Java runtime from all possible locations on your machine.
+ * 
+ * @param options advanced options
+ * @returns 
+ */
 export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> {
     const candidates: string[] = [];
     // SDKMAN
     candidates.push(...await sdkman.candidates());
-    // TBD: other candidates
     
     // platform-specific default location
     if (isLinux) {
