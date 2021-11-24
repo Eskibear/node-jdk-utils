@@ -1,10 +1,10 @@
-# node-java-utils
+# node-jdk-utils
 
 A collection of Java related utils.
 
 ## Installation
 ```bash
-npm i java-utils
+npm i jdk-utils
 ```
 
 ## Usage
@@ -26,7 +26,7 @@ Covering:
 callback-style
 
 ```ts
-require("java-utils").findRuntimes().then(console.log)
+require("jdk-utils").findRuntimes().then(console.log)
 /*
 [{
     homedir: '/home/username/.sdkman/candidates/java/17.0.1-ms',
@@ -40,7 +40,7 @@ require("java-utils").findRuntimes().then(console.log)
 
 promise-style
 ```ts
-import { findRuntimes } from "java-utils";
+import { findRuntimes } from "jdk-utils";
 await findRuntimes({checkJavac: true, withVersion: true});
 /*
 [{

@@ -1,7 +1,7 @@
 {
-  "name": "java-utils",
-  "version": "0.1.0",
-  "description": "Java related utils.",
+  "name": "jdk-utils",
+  "version": "0.1.0-preview",
+  "description": "JDK related utils for Java related development.",
   "main": "dist/index.js",
   "scripts": {
     "prepack": "npm run build",
@@ -10,14 +10,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Eskibear/node-java-utils.git"
+    "url": "git+https://github.com/Eskibear/node-jdk-utils.git"
   },
   "author": "Eskibear",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Eskibear/node-java-utils/issues"
+    "url": "https://github.com/Eskibear/node-jdk-utils/issues"
   },
-  "homepage": "https://github.com/Eskibear/node-java-utils#readme",
+  "homepage": "https://github.com/Eskibear/node-jdk-utils#readme",
   "devDependencies": {
     "@types/node": "^16.11.8",
     "chai": "^4.3.4",
