@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import * as path from "path";
+import * as cp from "child_process";
 import * as envs from "./from/envs";
 import * as jenv from "./from/jenv";
 import * as linux from "./from/linux";
@@ -77,7 +78,7 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     }
 
     if (options?.withVersion) {
-        runtimes = await Promise.all(runtimes.map(parseRuntime));
+        runtimes = await Promise.all(runtimes.map(parseVersion));
         if (!options?.fuzzy) {
             runtimes = runtimes.filter(r => r.version !== undefined);
         }
@@ -110,7 +111,7 @@ async function checkJavacFile(runtime: IJavaRuntime): Promise<IJavaRuntime> {
     return runtime;
 }
 
-async function parseRuntime(runtime: IJavaRuntime): Promise<IJavaRuntime> {
+async function parseVersion(runtime: IJavaRuntime): Promise<IJavaRuntime> {
     const { homedir } = runtime;
     const releaseFile = path.join(homedir, "release");
     try {
@@ -130,7 +131,40 @@ async function parseRuntime(runtime: IJavaRuntime): Promise<IJavaRuntime> {
     } catch (error) {
         logger.log(error);
     }
+
+    if (runtime.version === undefined) {
+        // fallback to check version by CLI
+        try {
+            runtime.version = await checkJavaVersionByCLI(homedir);
+        } catch (error) {
+            logger.log(error);
+        }
+    }
+
     return runtime;
+}
+
+/**
+ * Get version by parsing `JAVA_HOME/bin/java -version`, make sure binary file exists.
+ * @deprecated as a fallback when file "release" not found
+ */
+async function checkJavaVersionByCLI(javaHome: string): Promise<IJavaVersion | undefined> {
+    return new Promise((resolve, _reject) => {
+        const javaBin = path.join(javaHome, "bin", JAVA_FILENAME); // assume java binary exists.
+        cp.execFile(javaBin, ["-version"], {}, (_error, _stdout, stderr) => {
+            const regexp = /version "(.*)"/g;
+            const match = regexp.exec(stderr);
+            if (!match) {
+                return resolve(undefined);
+            }
+            const openjdk_version = match[1];
+            const major = parseMajorVersion(openjdk_version);
+            resolve({
+                openjdk_version,
+                major
+            });
+        });
+    });
 }
 
 function parseMajorVersion(version: string): number {
