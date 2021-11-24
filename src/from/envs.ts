@@ -1,5 +1,5 @@
 import * as path from "path";
-import { looksLikeJavaHome } from "../utils";
+import { expandTilde, looksLikeJavaHome } from "../utils";
 
 export function candidates(): string[] {
     const ret = [];
@@ -11,5 +11,5 @@ export function candidates(): string[] {
         const homeDirs = jdkBinFolderFromPath.map(p => path.dirname(p));
         ret.push(...homeDirs);
     }
-    return ret;
+    return ret.map(expandTilde); // '~' can occur in envs in Unix-like systems
 }
