@@ -275,8 +275,6 @@ class RuntimeStore {
     }
 
     public allRuntimes() {
-        console.log("Store.runtimes")
-        console.log(this.map.values());
         return Array.from(this.map.values());
     }
 }
