@@ -14,10 +14,10 @@ const isWindows: boolean = process.platform.indexOf("win") === 0;
 const isMac: boolean = process.platform.indexOf("darwin") === 0;
 const isLinux: boolean = process.platform.indexOf("linux") === 0;
 
-const JAVA_FILENAME = isWindows ? "java.exe" : "java";
-const JAVAC_FILENAME = isWindows ? "javac.exe" : "javac";
+export const JAVA_FILENAME = isWindows ? "java.exe" : "java";
+export const JAVAC_FILENAME = isWindows ? "javac.exe" : "javac";
 
-interface IOptions {
+export interface IOptions {
     /**
      * whether to parse version.
      */
@@ -36,12 +36,12 @@ interface IOptions {
     withTags?: boolean;
 }
 
-interface IJavaVersion {
+export interface IJavaVersion {
     java_version: string;
     major: number;
 }
 
-interface IJavaRuntime {
+export interface IJavaRuntime {
     /**
      * Home directory of Java runtime.
      */
@@ -51,9 +51,9 @@ interface IJavaRuntime {
      */
     version?: IJavaVersion;
     /**
-     * Whether java or java.exe exists, indicating it's a valid runtime.
+     * Whether java or java.exe exists, indicating it's a valid runtime. Only available when `options.fuzzy` provided.
      */
-    _valid?: boolean;
+    isValid?: boolean;
     /**
      * Whether javac or javac.exe exists.
      */
@@ -139,7 +139,7 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     if (true /* always check java binary */) {
         runtimes = await Promise.all(runtimes.map(checkJavaFile));
         if (true /* java binary is required for a valid runtime */) {
-            runtimes = runtimes.filter(r => r._valid);
+            runtimes = runtimes.filter(r => r.isValid);
         }
     }
 
@@ -154,11 +154,55 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     // clean up private fields by default
     if (!options?.fuzzy) {
         for (const r of runtimes) {
-            delete r._valid;
+            delete r.isValid;
         }
     }
 
     return runtimes;
+}
+
+/**
+ * Verify if given directory contains a valid Java runtime, and provide details if it is.
+ * 
+ * @param homedir home directory of a Java runtime
+ * @param options 
+ * @returns 
+ */
+export async function getRuntime(homedir: string, options?: IOptions): Promise<IJavaRuntime> {
+    let runtime : IJavaRuntime= {homedir};
+    runtime = await checkJavaFile(runtime);
+    if (!runtime.isValid) {
+        return runtime;
+    }
+
+    if (options?.checkJavac) {
+        runtime = await checkJavacFile(runtime);
+    }
+    if (options?.withVersion) {
+        runtime = await parseVersion(runtime);
+    }
+
+    if (options?.withTags) {
+        const jList = await jenv.candidates();
+        if (jList.includes(homedir)) {
+            runtime.isFromJENV = true;
+        }
+        const sList = await sdkman.candidates();
+        if (sList.includes(homedir)) {
+            runtime.isFromSDKMAN = true;
+        }
+        const pList = envs.candidatesFromPath();
+        if (pList.includes(homedir)) {
+            runtime.isInPathEnv = true;
+        }
+        if (envs.candidatesFromSpecificEnv("JAVA_HOME") === homedir) {
+            runtime.isJavaHomeEnv = true;
+        }
+        if (envs.candidatesFromSpecificEnv("JDK_HOME") === homedir) {
+            runtime.isJdkHomeEnv = true;
+        }
+    }
+    return runtime;
 }
 
 async function checkJavaFile(runtime: IJavaRuntime): Promise<IJavaRuntime> {
@@ -166,9 +210,9 @@ async function checkJavaFile(runtime: IJavaRuntime): Promise<IJavaRuntime> {
     const binary = path.join(homedir, "bin", JAVA_FILENAME);
     try {
         await fs.promises.access(binary, fs.constants.F_OK);
-        runtime._valid = true;
+        runtime.isValid = true;
     } catch (error) {
-        runtime._valid = false;
+        runtime.isValid = false;
     }
     return runtime;
 }
