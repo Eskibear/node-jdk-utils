@@ -1,6 +1,6 @@
 {
   "name": "jdk-utils",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "JDK related utils for Java related development.",
   "main": "dist/index.js",
   "scripts": {

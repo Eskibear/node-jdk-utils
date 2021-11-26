@@ -19,7 +19,7 @@ Covering:
 * Links specified in jEnv.
 * Platform-specific conventional installation location:
   * Linux: `/usr/lib/jvm`
-  * macOS: `/Library/Java/JavaVirtualMachines`
+  * macOS: `/Library/Java/JavaVirtualMachines`, `~/Library/Java/JavaVirtualMachines`, output of `java_home -V`.
   * Windows: JDK-like folders under `%ProgramFiles%` and `%LocalAppData%`,
 
 

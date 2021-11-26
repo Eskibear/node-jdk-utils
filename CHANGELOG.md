@@ -1,5 +1,11 @@
 This is changelog of node-jdk-utils project.
 
+## 0.2.1
+### Fixed
+- For macOS, add below sources to detect runtimes:
+  - `~/Library/Java/JavaVirtualMachines`
+  - Output of `java_home -V`
+
 ## 0.2.0
 ### Added
 - New API **getRuntime(homedir, options)**: verify if given directory is a valid runtime, and provide more information if it is.  
