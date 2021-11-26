@@ -1,9 +1,11 @@
 import * as fs from "fs";
+import * as os from "os";
 import * as path from "path";
 import { log } from "../logger";
 
 const JDK_BASE_DIRS = [
     "/Library/Java/JavaVirtualMachines",
+    path.join(os.homedir(), "Library/Java/JavaVirtualMachines")
 ];
 
 export async function candidates(): Promise<string[]> {
