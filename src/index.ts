@@ -1,7 +1,8 @@
+import * as cp from "child_process";
 import * as fs from "fs";
 import * as path from "path";
-import * as cp from "child_process";
 import * as envs from "./from/envs";
+import * as jabba from "./from/jabba";
 import * as jenv from "./from/jenv";
 import * as linux from "./from/linux";
 import * as macOS from "./from/macOS";
@@ -60,22 +61,23 @@ export interface IJavaRuntime {
     hasJavac?: boolean;
 
     /**
-     * is same as env.JAVA_HOME
+     * whether is same as env.JAVA_HOME
      */
     isJavaHomeEnv?: boolean;
 
     /**
-     * is same as env.JDK_HOME
+     * whether is same as env.JDK_HOME
      */
     isJdkHomeEnv?: boolean;
 
     /**
-     * '<homedir>/bin' is one of env.PATH entries
+     * whether '<homedir>/bin' is one of env.PATH entries
      */
     isInPathEnv?: boolean;
 
     isFromSDKMAN?: boolean;
     isFromJENV?: boolean;
+    isFromJabba?: boolean;
 }
 
 /**
@@ -130,6 +132,10 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     // jEnv
     const fromJENV = await jenv.candidates();
     updateCandidates(fromJENV, (r) => ({ ...r, isFromJENV: true }));
+
+    // jabba
+    const fromJabba = await jabba.candidates();
+    updateCandidates(fromJabba, (r) => ({ ...r, isFromJabba: true }));
 
     // dedup and construct runtimes
     let runtimes: IJavaRuntime[] = options?.withTags ? store.allRuntimes()
