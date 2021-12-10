@@ -64,4 +64,11 @@ describe("test this module", () => {
         console.log("JDK found: ", jdks.length);
         console.log(jdks);
     });
+    it("should list sources", async () => {
+        const label = "getSources";
+        console.time(label);
+        const jdks = await utils.findRuntimes({ withTags: true, withVersion: true, checkJavac: true });
+        console.timeEnd(label);
+        jdks.forEach(jdk => console.log(jdk.homedir, utils.getSources(jdk)));
+    });
 });

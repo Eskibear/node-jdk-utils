@@ -211,6 +211,35 @@ export async function getRuntime(homedir: string, options?: IOptions): Promise<I
     return runtime;
 }
 
+/**
+ * A utility to list all sources where given Java runtime is found.
+ * 
+ * @param r given IJavaRuntime
+ * @returns list of sources where given runtime is found.
+ */
+export function getSources(r: IJavaRuntime): string[] {
+    const sources: string[] = [];
+    if (r.isJdkHomeEnv) {
+        sources.push("JDK_HOME");
+    }
+    if (r.isJavaHomeEnv) {
+        sources.push("JAVA_HOME");
+    }
+    if (r.isInPathEnv) {
+        sources.push("PATH");
+    }
+    if (r.isFromSDKMAN) {
+        sources.push("SDKMAN");
+    }
+    if (r.isFromJENV) {
+        sources.push("jEnv");
+    }
+    if (r.isFromJabba) {
+        sources.push("jabba");
+    }
+    return sources;
+}
+
 async function checkJavaFile(runtime: IJavaRuntime): Promise<IJavaRuntime> {
     const { homedir } = runtime;
     const binary = path.join(homedir, "bin", JAVA_FILENAME);
