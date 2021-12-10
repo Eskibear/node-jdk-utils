@@ -1,5 +1,9 @@
 This is changelog of node-jdk-utils project.
 
+## 0.3.1
+### Changed
+- Simplify APIs.
+
 ## 0.3.0
 ### Added
 - Support to detect JDKs installed by jabba.
