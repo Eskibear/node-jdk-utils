@@ -1,5 +1,10 @@
 This is changelog of node-jdk-utils project.
 
+## 0.3.0
+### Added
+- Support to detect JDKs installed by jabba.
+- New API **getSources(runtime)** to list sources where a Java Runtime is found.
+
 ## 0.2.1
 ### Fixed
 - For macOS, add below sources to detect runtimes:

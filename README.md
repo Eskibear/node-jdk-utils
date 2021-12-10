@@ -19,6 +19,7 @@ Covering:
 * `JAVA_HOME`.
 * JDK-like paths from `PATH`.
 * SDKMAN installation location.
+* jabba installation location, i.e. `~/.jabba/jdk`
 * Links specified in jEnv.
 * Platform-specific conventional installation location:
   * Linux: `/usr/lib/jvm`
@@ -44,11 +45,12 @@ require("jdk-utils").findRuntimes().then(console.log)
 promise-style
 ```ts
 import { findRuntimes } from "jdk-utils";
-await findRuntimes({checkJavac: true, withVersion: true});
+await findRuntimes({checkJavac: true, withVersion: true, withTags: true});
 /*
 [{
     homedir: '/home/yanzh/.sdkman/candidates/java/17.0.1-ms',
     hasJavac: true,
+    isFromSDKMAN: true,
     version: { java_version: '17.0.1', major: 17 }
   }, {
     homedir: '/usr/lib/jvm/java-11-openjdk-amd64',
