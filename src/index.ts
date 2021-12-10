@@ -28,10 +28,6 @@ export interface IOptions {
      */
     checkJavac?: boolean;
     /**
-     * whether to include all invalid runtimes, e.g. when JAVA_HOME points to an invalid folder.
-     */
-    fuzzy?: boolean;
-    /**
      * whether to include tags for detailed information
      */
     withTags?: boolean;
@@ -51,10 +47,6 @@ export interface IJavaRuntime {
      * Version information. 
      */
     version?: IJavaVersion;
-    /**
-     * Whether java or java.exe exists, indicating it's a valid runtime. Only available when `options.fuzzy` provided.
-     */
-    isValid?: boolean;
     /**
      * Whether javac or javac.exe exists.
      */
@@ -101,7 +93,7 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     // SDKMAN
     const fromSdkman = await sdkman.candidates();
     updateCandidates(fromSdkman, (r) => ({ ...r, isFromSDKMAN: true }));
-    
+
     // platform-specific default location
     if (isLinux) {
         updateCandidates(await linux.candidates());
@@ -145,7 +137,7 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     if (true /* always check java binary */) {
         runtimes = await Promise.all(runtimes.map(checkJavaFile));
         if (true /* java binary is required for a valid runtime */) {
-            runtimes = runtimes.filter(r => r.isValid);
+            runtimes = (runtimes as Array<IJavaRuntime & CanValidate>).filter(r => r.isValid);
         }
     }
 
@@ -158,10 +150,8 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     }
 
     // clean up private fields by default
-    if (!options?.fuzzy) {
-        for (const r of runtimes) {
-            delete r.isValid;
-        }
+    for (const r of runtimes) {
+        delete (r as CanValidate).isValid;
     }
 
     return runtimes;
@@ -174,11 +164,11 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
  * @param options 
  * @returns 
  */
-export async function getRuntime(homedir: string, options?: IOptions): Promise<IJavaRuntime> {
-    let runtime : IJavaRuntime= {homedir};
+export async function getRuntime(homedir: string, options?: IOptions): Promise<IJavaRuntime | undefined> {
+    let runtime: IJavaRuntime = { homedir };
     runtime = await checkJavaFile(runtime);
-    if (!runtime.isValid) {
-        return runtime;
+    if (!(runtime as CanValidate).isValid) {
+        return undefined;
     }
 
     if (options?.checkJavac) {
@@ -196,6 +186,10 @@ export async function getRuntime(homedir: string, options?: IOptions): Promise<I
         const sList = await sdkman.candidates();
         if (sList.includes(homedir)) {
             runtime.isFromSDKMAN = true;
+        }
+        const jbList = await jabba.candidates();
+        if (jbList.includes(homedir)) {
+            runtime.isFromJabba = true;
         }
         const pList = envs.candidatesFromPath();
         if (pList.includes(homedir)) {
@@ -240,16 +234,16 @@ export function getSources(r: IJavaRuntime): string[] {
     return sources;
 }
 
-async function checkJavaFile(runtime: IJavaRuntime): Promise<IJavaRuntime> {
+async function checkJavaFile(runtime: IJavaRuntime): Promise<IJavaRuntime & CanValidate> {
     const { homedir } = runtime;
     const binary = path.join(homedir, "bin", JAVA_FILENAME);
     try {
         await fs.promises.access(binary, fs.constants.F_OK);
-        runtime.isValid = true;
+        (runtime as IJavaRuntime & CanValidate).isValid = true;
     } catch (error) {
-        runtime.isValid = false;
+        (runtime as IJavaRuntime & CanValidate).isValid = false;
     }
-    return runtime;
+    return runtime as IJavaRuntime & CanValidate;
 }
 
 async function checkJavacFile(runtime: IJavaRuntime): Promise<IJavaRuntime> {
@@ -340,10 +334,10 @@ function parseMajorVersion(version: string): number {
 
 class RuntimeStore {
     private map: Map<string, IJavaRuntime> = new Map();
-    constructor() {}
+    constructor() { }
 
     public updateRuntimes(homedirs: string[], updater?: (r: IJavaRuntime) => IJavaRuntime) {
-        for(const h of homedirs) {
+        for (const h of homedirs) {
             this.updateRuntime(h, updater);
         }
     }
@@ -356,4 +350,11 @@ class RuntimeStore {
     public allRuntimes() {
         return Array.from(this.map.values());
     }
+}
+
+interface CanValidate {
+    /**
+     * Whether java or java.exe exists, indicating it's a valid runtime.
+     */
+    isValid?: boolean;
 }

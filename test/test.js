@@ -36,24 +36,14 @@ describe("test this module", () => {
         jdks.forEach(jdk => console.log(jdk.homedir, jdk.hasJavac));
     });
 
-    it("should check java binary with fuzzy search", async () => {
-        const label = "fuzzy";
+    it("should list all possible JDKs with version", async () => {
+        const label = "checkJavac,withVersion";
         console.time(label);
-        const jdks = await utils.findRuntimes({ fuzzy: true });
+        const jdks = await utils.findRuntimes({ checkJavac: true, withVersion: true });
         console.timeEnd(label);
         console.log("JDK found: ", jdks.length);
         console.log("homedir", "hasJava", "hasJavac", "majorVersion");
-        jdks.forEach(jdk => console.log(jdk.homedir, jdk.hasJava, jdk.hasJavac, jdk.version?.major));
-    });
-
-    it("should list all possible locations with full-fuzzy search", async () => {
-        const label = "fuzzy,checkJavac,withVersion";
-        console.time(label);
-        const jdks = await utils.findRuntimes({ fuzzy: true, checkJavac: true, withVersion: true });
-        console.timeEnd(label);
-        console.log("JDK found: ", jdks.length);
-        console.log("homedir", "hasJava", "hasJavac", "majorVersion");
-        jdks.forEach(jdk => console.log(jdk.homedir, jdk.hasJava, jdk.hasJavac, jdk.version?.major));
+        jdks.forEach(jdk => console.log(jdk.homedir, jdk.hasJavac, jdk.version?.major));
     });
 
     it("should list with tags", async () => {
