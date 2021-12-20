@@ -2,6 +2,7 @@ import * as cp from "child_process";
 import * as fs from "fs";
 import * as path from "path";
 import * as envs from "./from/envs";
+import * as homebrew from "./from/homebrew";
 import * as jabba from "./from/jabba";
 import * as jenv from "./from/jenv";
 import * as linux from "./from/linux";
@@ -9,14 +10,9 @@ import * as macOS from "./from/macOS";
 import * as sdkman from "./from/sdkman";
 import * as windows from "./from/windows";
 import * as logger from "./logger";
-import { deDup } from "./utils";
+import { deDup, isLinux, isMac, isWindows, JAVAC_FILENAME, JAVA_FILENAME } from "./utils";
 
-const isWindows: boolean = process.platform.indexOf("win") === 0;
-const isMac: boolean = process.platform.indexOf("darwin") === 0;
-const isLinux: boolean = process.platform.indexOf("linux") === 0;
-
-export const JAVA_FILENAME = isWindows ? "java.exe" : "java";
-export const JAVAC_FILENAME = isWindows ? "javac.exe" : "javac";
+export { JAVAC_FILENAME, JAVA_FILENAME } from "./utils";
 
 export interface IOptions {
     /**
@@ -44,7 +40,7 @@ export interface IJavaRuntime {
      */
     homedir: string;
     /**
-     * Version information. 
+     * Version information.
      */
     version?: IJavaVersion;
     /**
@@ -74,9 +70,9 @@ export interface IJavaRuntime {
 
 /**
  * Find Java runtime from all possible locations on your machine.
- * 
+ *
  * @param options advanced options
- * @returns 
+ * @returns
  */
 export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> {
     const store = new RuntimeStore();
@@ -100,6 +96,7 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     }
     if (isMac) {
         updateCandidates(await macOS.candidates());
+        updateCandidates(await homebrew.candidates()); // Homebrew
     }
     if (isWindows) {
         updateCandidates(await windows.candidates());
@@ -159,10 +156,10 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
 
 /**
  * Verify if given directory contains a valid Java runtime, and provide details if it is.
- * 
+ *
  * @param homedir home directory of a Java runtime
- * @param options 
- * @returns 
+ * @param options
+ * @returns
  */
 export async function getRuntime(homedir: string, options?: IOptions): Promise<IJavaRuntime | undefined> {
     let runtime: IJavaRuntime = { homedir };
@@ -207,7 +204,7 @@ export async function getRuntime(homedir: string, options?: IOptions): Promise<I
 
 /**
  * A utility to list all sources where given Java runtime is found.
- * 
+ *
  * @param r given IJavaRuntime
  * @returns list of sources where given runtime is found.
  */
