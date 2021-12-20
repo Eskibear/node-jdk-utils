@@ -21,6 +21,7 @@ Covering:
 * SDKMAN installation location.
 * jabba installation location, i.e. `~/.jabba/jdk`
 * Links specified in jEnv.
+* Homebrew installation, i.e. symbolic links under `/usr/local/opt`. (macOS only)
 * Platform-specific conventional installation location:
   * Linux: `/usr/lib/jvm`
   * macOS: `/Library/Java/JavaVirtualMachines`, `~/Library/Java/JavaVirtualMachines`, output of `java_home -V`.
