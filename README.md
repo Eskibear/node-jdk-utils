@@ -27,6 +27,13 @@ Covering:
   * macOS: `/Library/Java/JavaVirtualMachines`, `~/Library/Java/JavaVirtualMachines`, output of `java_home -V`.
   * Windows: JDK-like folders under `%ProgramFiles%` and `%LocalAppData%`,
 
+CLI
+
+Below command lists all detected JDKs with details.
+```bash
+npx jdk-utils
+```
+
 
 callback-style
 
