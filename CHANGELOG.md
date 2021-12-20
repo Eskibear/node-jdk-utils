@@ -1,4 +1,10 @@
 This is changelog of node-jdk-utils project.
+## 0.4.0
+### Added
+- Support to detect JDKs installed by Homebrew (macOS only).
+
+### Fixed
+- For candidates from envs like `PATH`, resolve symbolic links of `bin/java` to get real path of the installation.
 
 ## 0.3.1
 ### Changed
@@ -17,7 +23,7 @@ This is changelog of node-jdk-utils project.
 
 ## 0.2.0
 ### Added
-- New API **getRuntime(homedir, options)**: verify if given directory is a valid runtime, and provide more information if it is.  
+- New API **getRuntime(homedir, options)**: verify if given directory is a valid runtime, and provide more information if it is.
 - Export type defitions for better usablity.
 
 ## 0.1.0
