@@ -106,19 +106,19 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     }
 
     // from env: JDK_HOME
-    const fromJdkHome = envs.candidatesFromSpecificEnv("JDK_HOME");
+    const fromJdkHome = await envs.candidatesFromSpecificEnv("JDK_HOME");
     if (fromJdkHome) {
         updateCandidates([fromJdkHome], (r) => ({ ...r, isJdkHomeEnv: true }));
     }
 
     // from env: JAVA_HOME
-    const fromJavaHome = envs.candidatesFromSpecificEnv("JAVA_HOME");
+    const fromJavaHome = await envs.candidatesFromSpecificEnv("JAVA_HOME");
     if (fromJavaHome) {
         updateCandidates([fromJavaHome], (r) => ({ ...r, isJavaHomeEnv: true }));
     }
 
     // from env: PATH
-    const fromPath = envs.candidatesFromPath();
+    const fromPath = await envs.candidatesFromPath();
     updateCandidates(fromPath, (r) => ({ ...r, isInPathEnv: true }));
 
     // jEnv
@@ -191,14 +191,14 @@ export async function getRuntime(homedir: string, options?: IOptions): Promise<I
         if (jbList.includes(homedir)) {
             runtime.isFromJabba = true;
         }
-        const pList = envs.candidatesFromPath();
+        const pList = await envs.candidatesFromPath();
         if (pList.includes(homedir)) {
             runtime.isInPathEnv = true;
         }
-        if (envs.candidatesFromSpecificEnv("JAVA_HOME") === homedir) {
+        if (await envs.candidatesFromSpecificEnv("JAVA_HOME") === homedir) {
             runtime.isJavaHomeEnv = true;
         }
-        if (envs.candidatesFromSpecificEnv("JDK_HOME") === homedir) {
+        if (await envs.candidatesFromSpecificEnv("JDK_HOME") === homedir) {
             runtime.isJdkHomeEnv = true;
         }
     }
