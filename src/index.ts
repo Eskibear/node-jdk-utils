@@ -10,7 +10,7 @@ import * as macOS from "./from/macOS";
 import * as sdkman from "./from/sdkman";
 import * as windows from "./from/windows";
 import * as logger from "./logger";
-import { deDup, isLinux, isMac, isWindows, JAVAC_FILENAME, JAVA_FILENAME } from "./utils";
+import { deDup, isArm, isLinux, isMac, isWindows, JAVAC_FILENAME, JAVA_FILENAME } from "./utils";
 
 export { JAVAC_FILENAME, JAVA_FILENAME } from "./utils";
 
@@ -93,10 +93,12 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     // platform-specific default location
     if (isLinux) {
         updateCandidates(await linux.candidates());
+        updateCandidates(await homebrew.candidates(homebrew.HOMEBREW_DIR_LINUX)); // Homebrew
     }
     if (isMac) {
         updateCandidates(await macOS.candidates());
-        updateCandidates(await homebrew.candidates()); // Homebrew
+        const hbOptPath = isArm ? homebrew.HOMEBREW_DIR_APPLE_SILLICON : homebrew.HOMEBREW_DIR_INTEL;
+        updateCandidates(await homebrew.candidates(hbOptPath)); // Homebrew
     }
     if (isWindows) {
         updateCandidates(await windows.candidates());
