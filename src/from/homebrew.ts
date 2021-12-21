@@ -16,12 +16,19 @@ $ ls -l /usr/local/opt/openjdk/bin/java
 # /usr/local/Cellar/openjdk/15.0.1/libexec/openjdk.jdk/Contents/Home/bin/java
 
 */
-const HOMEBREW_DIR = "/usr/local/opt";
-export async function candidates(): Promise<string[]> {
+
+/**
+ * See: https://docs.brew.sh/Installation
+ */
+export const HOMEBREW_DIR_INTEL = "/usr/local/opt";
+export const HOMEBREW_DIR_APPLE_SILLICON = "/opt/homebrew/opt";
+export const HOMEBREW_DIR_LINUX = "/home/linuxbrew/.linuxbrew/opt";
+
+export async function candidates(homebrewOptPath: string): Promise<string[]> {
     const ret = [];
     try {
-        const files = await fs.promises.readdir(HOMEBREW_DIR, { withFileTypes: true });
-        const homeDirLinks = files.filter(file => file.isSymbolicLink() && looksLikeJavaHome(file.name)).map(file => path.join(HOMEBREW_DIR, file.name));
+        const files = await fs.promises.readdir(homebrewOptPath, { withFileTypes: true });
+        const homeDirLinks = files.filter(file => file.isSymbolicLink() && looksLikeJavaHome(file.name)).map(file => path.join(homebrewOptPath, file.name));
 
         const actualHomeDirs = await Promise.all(deDup(homeDirLinks).map(file => getRealHome(file)))
         ret.push(...actualHomeDirs);

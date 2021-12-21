@@ -3,9 +3,13 @@ import { homedir } from "os";
 import { dirname, join } from "path";
 import * as logger from "./logger";
 
+// platform
 export const isWindows: boolean = process.platform.indexOf("win") === 0;
 export const isMac: boolean = process.platform.indexOf("darwin") === 0;
 export const isLinux: boolean = process.platform.indexOf("linux") === 0;
+
+// arch
+export const isArm: boolean = process.arch.indexOf("arm") === 0; // used to distinguish macOS Intel/Apple Sillicon
 
 export const JAVA_FILENAME = isWindows ? "java.exe" : "java";
 export const JAVAC_FILENAME = isWindows ? "javac.exe" : "javac";
