@@ -1,4 +1,9 @@
 This is changelog of node-jdk-utils project.
+
+## 0.4.2
+### Added
+- Support to detect JDKs installed by Homebrew, covering macOS Apple Silicon and Linux.
+
 ## 0.4.1
 ### Added
 - Add CLI to list all detected runtimes, which is convenient for testing coverage.
