@@ -3,7 +3,7 @@ import * as os from "os";
 import * as path from "path";
 import { log } from "../logger";
 
-const ASDF_DIR = path.join(os.homedir(), ".asdf");
+const ASDF_DIR = process.env.ASDF_DIR ?? path.join(os.homedir(), ".asdf");
 const JDK_BASE_DIR = path.join(ASDF_DIR, "installs", "java");
 
 export async function candidates(): Promise<string[]> {
