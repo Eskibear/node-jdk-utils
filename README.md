@@ -20,6 +20,7 @@ Covering:
 * JDK-like paths from `PATH`.
 * SDKMAN installation location.
 * jabba installation location, i.e. `~/.jabba/jdk`
+* ASDF installation location.
 * Links specified in jEnv.
 * Homebrew installation:
   * macOS Intel: `/usr/local`

@@ -1,5 +1,8 @@
 This is changelog of node-jdk-utils project.
 
+## 0.4.3
+- Support to detect JDKs installed by ASDF.
+
 ## 0.4.2
 ### Added
 - Support to detect JDKs installed by Homebrew, covering macOS Apple Silicon and Linux.
