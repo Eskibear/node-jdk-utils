@@ -1,6 +1,7 @@
 import * as cp from "child_process";
 import * as fs from "fs";
 import * as path from "path";
+import * as asdf from "./from/asdf";
 import * as envs from "./from/envs";
 import * as homebrew from "./from/homebrew";
 import * as jabba from "./from/jabba";
@@ -66,6 +67,7 @@ export interface IJavaRuntime {
     isFromSDKMAN?: boolean;
     isFromJENV?: boolean;
     isFromJabba?: boolean;
+    isFromASDF?: boolean;
 }
 
 /**
@@ -128,6 +130,10 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     const fromJabba = await jabba.candidates();
     updateCandidates(fromJabba, (r) => ({ ...r, isFromJabba: true }));
 
+    // asdf
+    const fromASDF = await asdf.candidates();
+    updateCandidates(fromASDF, (r) => ({ ...r, isFromASDF: true }));
+    
     // dedup and construct runtimes
     let runtimes: IJavaRuntime[] = options?.withTags ? store.allRuntimes()
         : deDup(candidates).map((homedir) => ({ homedir }));
@@ -178,6 +184,10 @@ export async function getRuntime(homedir: string, options?: IOptions): Promise<I
     }
 
     if (options?.withTags) {
+        const aList = await asdf.candidates();
+        if (aList.includes(homedir)) {
+            runtime.isFromASDF = true;
+        }
         const jList = await jenv.candidates();
         if (jList.includes(homedir)) {
             runtime.isFromJENV = true;
@@ -229,6 +239,9 @@ export function getSources(r: IJavaRuntime): string[] {
     }
     if (r.isFromJabba) {
         sources.push("jabba");
+    }
+    if (r.isFromASDF) {
+        sources.push("asdf");
     }
     return sources;
 }
