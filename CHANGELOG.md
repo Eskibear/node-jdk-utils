@@ -1,7 +1,10 @@
 This is changelog of node-jdk-utils project.
 
+## 0.4.4
+- Better support for ASDF, searching `env.ASDF_DATA_DIR` instead of `env.ASDF_DIR`. [#8](https://github.com/Eskibear/node-jdk-utils/pull/8)
+
 ## 0.4.3
-- Support to detect JDKs installed by ASDF.
+- Support to detect JDKs installed by ASDF. [#7](https://github.com/Eskibear/node-jdk-utils/pull/7)
 
 ## 0.4.2
 ### Added
