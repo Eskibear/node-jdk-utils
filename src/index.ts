@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as asdf from "./from/asdf";
 import * as envs from "./from/envs";
+import * as gradle from "./from/gradle";
 import * as homebrew from "./from/homebrew";
 import * as jabba from "./from/jabba";
 import * as jenv from "./from/jenv";
@@ -68,6 +69,7 @@ export interface IJavaRuntime {
     isFromJENV?: boolean;
     isFromJabba?: boolean;
     isFromASDF?: boolean;
+    isFromGradle?: boolean;
 }
 
 /**
@@ -133,6 +135,10 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     // asdf
     const fromASDF = await asdf.candidates();
     updateCandidates(fromASDF, (r) => ({ ...r, isFromASDF: true }));
+
+    // Gradle
+    const fromGradle = await gradle.candidates();
+    updateCandidates(fromGradle, (r) => ({ ...r, isFromGradle: true }));
     
     // dedup and construct runtimes
     let runtimes: IJavaRuntime[] = options?.withTags ? store.allRuntimes()
@@ -184,6 +190,10 @@ export async function getRuntime(homedir: string, options?: IOptions): Promise<I
     }
 
     if (options?.withTags) {
+        const gList = await gradle.candidates();
+        if (gList.includes(homedir)) {
+            runtime.isFromGradle = true;
+        }
         const aList = await asdf.candidates();
         if (aList.includes(homedir)) {
             runtime.isFromASDF = true;
@@ -242,6 +252,9 @@ export function getSources(r: IJavaRuntime): string[] {
     }
     if (r.isFromASDF) {
         sources.push("asdf");
+    }
+    if (r.isFromGradle) {
+        sources.push("Gradle");
     }
     return sources;
 }
