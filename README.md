@@ -21,6 +21,7 @@ Covering:
 * SDKMAN installation location.
 * jabba installation location, i.e. `~/.jabba/jdk`
 * ASDF installation location.
+* JDK installations managed by [Gradle](https://docs.gradle.org/8.1/userguide/toolchains.html), e.g. `~/.gradle/jdk`
 * Links specified in jEnv.
 * Homebrew installation:
   * macOS Intel: `/usr/local`

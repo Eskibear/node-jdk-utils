@@ -1,3 +1,5 @@
+// See https://docs.gradle.org/8.1/userguide/toolchains.html
+
 import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";

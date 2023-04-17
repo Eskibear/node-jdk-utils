@@ -1,5 +1,8 @@
 This is changelog of node-jdk-utils project.
 
+## 0.4.5
+- Support to detect JDKs installed by Gradle. [[#9](https://github.com/Eskibear/node-jdk-utils/issues/9)]
+
 ## 0.4.4
 - Better support for ASDF, searching `env.ASDF_DATA_DIR` instead of `env.ASDF_DIR`. [#8](https://github.com/Eskibear/node-jdk-utils/pull/8)
 
