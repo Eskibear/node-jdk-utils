@@ -18,6 +18,7 @@ const POPULAR_DISTRIBUTIONS = [
     "Amazon Corretto",
     "Microsoft", // Microsoft OpenJDK
     path.join("SapMachine", "JDK"), // SAP Machine
+    "Zulu", // Azul OpenJDK
 ];
 
 export async function candidates(): Promise<string[]> {
