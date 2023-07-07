@@ -1,10 +1,12 @@
+import * as fs from "fs";
 import * as path from "path";
-import { expandTilde, getRealHome, looksLikeJavaHome } from "../utils";
+import { expandTilde, getRealHome, looksLikeJavaHome, JAVA_FILENAME } from "../utils";
 
 export async function candidatesFromPath(): Promise<string[]> {
     const ret = [];
     if (process.env.PATH) {
-        const jdkBinFolderFromPath = process.env.PATH.split(path.delimiter).filter(looksLikeJavaHome)
+        const jdkBinFolderFromPath = process.env.PATH.split(path.delimiter)
+            .filter(p => looksLikeJavaHome(p) || fs.existsSync(path.join(p, JAVA_FILENAME)))
             .map(expandTilde); // '~' can occur in envs in Unix-like systems
 
         /**
