@@ -1,3 +1,4 @@
+import * as cp from "child_process";
 import * as path from "path";
 import { expandTilde, getRealHome, looksLikeJavaHome } from "../utils";
 import { log } from "../logger";
