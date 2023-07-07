@@ -29,6 +29,38 @@ export interface IOptions {
      * whether to include tags for detailed information
      */
     withTags?: boolean;
+    /**
+     * whether to skip resolving from env.JAVA_HOME
+     */
+    skipJavaHomeEnv?: boolean;
+    /**
+     * whether to skip resolving from env.JDK_HOME
+     */
+    skipJdkHomeEnv?: boolean;
+    /**
+     * whether to skip resolving from env.PATH
+     */
+    skipInPathEnv?: boolean;
+    /**
+     * whether to skip resolving from SDKMAN
+     */
+    skipFromSDKMAN?: boolean;
+    /**
+     * whether to skip resolving from JENV
+     */
+    skipFromJENV?: boolean;
+    /**
+     * whether to skip resolving from Jabba
+     */
+    skipFromJabba?: boolean;
+    /**
+     * whether to skip resolving from ASDF
+     */
+    skipFromASDF?: boolean;
+    /**
+     * whether to skip resolving from Gradle locations
+     */
+    skipFromGradle?: boolean;
 }
 
 export interface IJavaVersion {
@@ -91,8 +123,10 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     }
 
     // SDKMAN
-    const fromSdkman = await sdkman.candidates();
-    updateCandidates(fromSdkman, (r) => ({ ...r, isFromSDKMAN: true }));
+    if (!options?.skipFromSDKMAN) {
+        const fromSdkman = await sdkman.candidates();
+        updateCandidates(fromSdkman, (r) => ({ ...r, isFromSDKMAN: true }));
+    }
 
     // platform-specific default location
     if (isLinux) {
@@ -109,36 +143,50 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     }
 
     // from env: JDK_HOME
-    const fromJdkHome = await envs.candidatesFromSpecificEnv("JDK_HOME");
-    if (fromJdkHome) {
-        updateCandidates([fromJdkHome], (r) => ({ ...r, isJdkHomeEnv: true }));
+    if (!options?.skipJdkHomeEnv) {
+        const fromJdkHome = await envs.candidatesFromSpecificEnv("JDK_HOME");
+        if (fromJdkHome) {
+            updateCandidates([fromJdkHome], (r) => ({ ...r, isJdkHomeEnv: true }));
+        }
     }
 
     // from env: JAVA_HOME
-    const fromJavaHome = await envs.candidatesFromSpecificEnv("JAVA_HOME");
-    if (fromJavaHome) {
-        updateCandidates([fromJavaHome], (r) => ({ ...r, isJavaHomeEnv: true }));
+    if (!options?.skipJavaHomeEnv) {
+        const fromJavaHome = await envs.candidatesFromSpecificEnv("JAVA_HOME");
+        if (fromJavaHome) {
+            updateCandidates([fromJavaHome], (r) => ({ ...r, isJavaHomeEnv: true }));
+        }
     }
 
     // from env: PATH
-    const fromPath = await envs.candidatesFromPath();
-    updateCandidates(fromPath, (r) => ({ ...r, isInPathEnv: true }));
+    if (!options?.skipInPathEnv) {
+        const fromPath = await envs.candidatesFromPath();
+        updateCandidates(fromPath, (r) => ({ ...r, isInPathEnv: true }));
+    }
 
     // jEnv
-    const fromJENV = await jenv.candidates();
-    updateCandidates(fromJENV, (r) => ({ ...r, isFromJENV: true }));
+    if (!options?.skipFromJENV) {
+        const fromJENV = await jenv.candidates();
+        updateCandidates(fromJENV, (r) => ({ ...r, isFromJENV: true }));
+    }
 
     // jabba
-    const fromJabba = await jabba.candidates();
-    updateCandidates(fromJabba, (r) => ({ ...r, isFromJabba: true }));
+    if (!options?.skipFromJabba) {
+        const fromJabba = await jabba.candidates();
+        updateCandidates(fromJabba, (r) => ({ ...r, isFromJabba: true }));
+    }
 
     // asdf
-    const fromASDF = await asdf.candidates();
-    updateCandidates(fromASDF, (r) => ({ ...r, isFromASDF: true }));
+    if (!options?.skipFromASDF) {
+        const fromASDF = await asdf.candidates();
+        updateCandidates(fromASDF, (r) => ({ ...r, isFromASDF: true }));
+    }
 
     // Gradle
-    const fromGradle = await gradle.candidates();
-    updateCandidates(fromGradle, (r) => ({ ...r, isFromGradle: true }));
+    if (!options?.skipFromGradle) {
+        const fromGradle = await gradle.candidates();
+        updateCandidates(fromGradle, (r) => ({ ...r, isFromGradle: true }));
+    }
     
     // dedup and construct runtimes
     let runtimes: IJavaRuntime[] = options?.withTags ? store.allRuntimes()
