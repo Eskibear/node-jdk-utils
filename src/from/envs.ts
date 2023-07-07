@@ -1,4 +1,5 @@
 import * as cp from "child_process";
+import * as os from "os";
 import * as path from "path";
 import { expandTilde, getRealHome, looksLikeJavaHome } from "../utils";
 import { log } from "../logger";
@@ -28,7 +29,7 @@ function candidateFromExecutable(): Promise<string | undefined> {
             if (error) {
                 resolve(undefined);
             } else {
-                const javaHome = stderr.split(/\r?\n/)
+                const javaHome = stderr.split(os.EOL)
                     .find(line => line.search(JAVA_HOME_PREFIX) > 0)
                     ?.replace(JAVA_HOME_PREFIX, "")
                     ?.trimStart()
