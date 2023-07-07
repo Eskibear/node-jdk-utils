@@ -1,15 +1,12 @@
-import * as cp from "child_process";
-import * as os from "os";
+import * as fs from "fs";
 import * as path from "path";
-import { expandTilde, getRealHome, looksLikeJavaHome } from "../utils";
-import { log } from "../logger";
-
-const JAVA_HOME_PREFIX = "java.home = ";
+import { expandTilde, getRealHome, looksLikeJavaHome, JAVA_FILENAME } from "../utils";
 
 export async function candidatesFromPath(): Promise<string[]> {
     const ret = [];
     if (process.env.PATH) {
-        const jdkBinFolderFromPath = process.env.PATH.split(path.delimiter).filter(looksLikeJavaHome)
+        const jdkBinFolderFromPath = process.env.PATH.split(path.delimiter)
+            .filter(p => looksLikeJavaHome(p) || fs.existsSync(path.join(p, JAVA_FILENAME)))
             .map(expandTilde); // '~' can occur in envs in Unix-like systems
 
         /**
@@ -19,28 +16,7 @@ export async function candidatesFromPath(): Promise<string[]> {
         const homeDirs = await Promise.all(jdkBinFolderFromPath.map(p => getRealHome(path.dirname(p))));
         ret.push(...homeDirs);
     }
-    ret.push(await candidateFromExecutable())
     return ret.filter(Boolean) as string[];
-}
-
-function candidateFromExecutable(): Promise<string | undefined> {
-    return new Promise<string | undefined>((resolve, reject) => {
-        cp.exec("java -XshowSettings:properties -version", (error, _stdout, stderr) => {
-            if (error) {
-                resolve(undefined);
-            } else {
-                const javaHome = stderr.split(os.EOL)
-                    .find(line => line.search(JAVA_HOME_PREFIX) > 0)
-                    ?.replace(JAVA_HOME_PREFIX, "")
-                    ?.trimStart()
-                    ?.trimEnd();
-                if (!javaHome) {
-                    log("Failed to get 'java.home' from java properties");
-                }
-                resolve(javaHome);
-            }
-        });
-    });
 }
 
 export async function candidatesFromSpecificEnv(envkey: string): Promise<string | undefined> {
