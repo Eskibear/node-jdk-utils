@@ -29,38 +29,44 @@ export interface IOptions {
      * whether to include tags for detailed information
      */
     withTags?: boolean;
+
     /**
-     * whether to skip resolving from env.JAVA_HOME
+     * whether to skip resolving from a specific source
      */
-    skipJavaHomeEnv?: boolean;
-    /**
-     * whether to skip resolving from env.JDK_HOME
-     */
-    skipJdkHomeEnv?: boolean;
-    /**
-     * whether to skip resolving from env.PATH
-     */
-    skipInPathEnv?: boolean;
-    /**
-     * whether to skip resolving from SDKMAN
-     */
-    skipFromSDKMAN?: boolean;
-    /**
-     * whether to skip resolving from JENV
-     */
-    skipFromJENV?: boolean;
-    /**
-     * whether to skip resolving from Jabba
-     */
-    skipFromJabba?: boolean;
-    /**
-     * whether to skip resolving from ASDF
-     */
-    skipFromASDF?: boolean;
-    /**
-     * whether to skip resolving from Gradle locations
-     */
-    skipFromGradle?: boolean;
+    skipFrom?: {
+        /**
+         * from env.JAVA_HOME
+         */
+        javaHomeEnv?: boolean;
+        /**
+         * from env.JDK_HOME
+         */
+        jdkHomeEnv?: boolean;
+        /**
+         * from env.PATH
+         */
+        inPathEnv?: boolean;
+        /**
+         * from SDKMAN
+         */
+        sdkman?: boolean;
+        /**
+         * from JENV
+         */
+        jenv?: boolean;
+        /**
+         * from Jabba
+         */
+        jabba?: boolean;
+        /**
+         * from ASDF
+         */
+        asdf?: boolean;
+        /**
+         * from Gradle locations
+         */
+        gradle?: boolean;
+    };
 }
 
 export interface IJavaVersion {
@@ -123,7 +129,7 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     }
 
     // SDKMAN
-    if (!options?.skipFromSDKMAN) {
+    if (!options?.skipFrom?.sdkman) {
         const fromSdkman = await sdkman.candidates();
         updateCandidates(fromSdkman, (r) => ({ ...r, isFromSDKMAN: true }));
     }
@@ -143,7 +149,7 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     }
 
     // from env: JDK_HOME
-    if (!options?.skipJdkHomeEnv) {
+    if (!options?.skipFrom?.jdkHomeEnv) {
         const fromJdkHome = await envs.candidatesFromSpecificEnv("JDK_HOME");
         if (fromJdkHome) {
             updateCandidates([fromJdkHome], (r) => ({ ...r, isJdkHomeEnv: true }));
@@ -151,7 +157,7 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     }
 
     // from env: JAVA_HOME
-    if (!options?.skipJavaHomeEnv) {
+    if (!options?.skipFrom?.javaHomeEnv) {
         const fromJavaHome = await envs.candidatesFromSpecificEnv("JAVA_HOME");
         if (fromJavaHome) {
             updateCandidates([fromJavaHome], (r) => ({ ...r, isJavaHomeEnv: true }));
@@ -159,31 +165,31 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
     }
 
     // from env: PATH
-    if (!options?.skipInPathEnv) {
+    if (!options?.skipFrom?.inPathEnv) {
         const fromPath = await envs.candidatesFromPath();
         updateCandidates(fromPath, (r) => ({ ...r, isInPathEnv: true }));
     }
 
     // jEnv
-    if (!options?.skipFromJENV) {
+    if (!options?.skipFrom?.jenv) {
         const fromJENV = await jenv.candidates();
         updateCandidates(fromJENV, (r) => ({ ...r, isFromJENV: true }));
     }
 
     // jabba
-    if (!options?.skipFromJabba) {
+    if (!options?.skipFrom?.jabba) {
         const fromJabba = await jabba.candidates();
         updateCandidates(fromJabba, (r) => ({ ...r, isFromJabba: true }));
     }
 
     // asdf
-    if (!options?.skipFromASDF) {
+    if (!options?.skipFrom?.asdf) {
         const fromASDF = await asdf.candidates();
         updateCandidates(fromASDF, (r) => ({ ...r, isFromASDF: true }));
     }
 
     // Gradle
-    if (!options?.skipFromGradle) {
+    if (!options?.skipFrom?.gradle) {
         const fromGradle = await gradle.candidates();
         updateCandidates(fromGradle, (r) => ({ ...r, isFromGradle: true }));
     }
