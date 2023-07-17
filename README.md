@@ -32,7 +32,9 @@ Covering:
   * macOS: `/Library/Java/JavaVirtualMachines`, `~/Library/Java/JavaVirtualMachines`, output of `java_home -V`.
   * Windows: JDK-like folders under `%ProgramFiles%` and `%LocalAppData%`,
 
-CLI
+Note: If you want to skip scanning a certain source for better performance, you can specify `skipFrom` options when calling the API.
+
+#### CLI
 
 Below command lists all detected JDKs with details.
 ```bash
@@ -40,7 +42,7 @@ npx jdk-utils
 ```
 
 
-callback-style
+#### callback-style
 
 ```ts
 require("jdk-utils").findRuntimes().then(console.log)
@@ -55,7 +57,7 @@ require("jdk-utils").findRuntimes().then(console.log)
 */
 ```
 
-promise-style
+#### promise-style
 ```ts
 import { findRuntimes } from "jdk-utils";
 await findRuntimes({checkJavac: true, withVersion: true, withTags: true});
