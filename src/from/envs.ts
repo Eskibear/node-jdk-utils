@@ -22,7 +22,7 @@ export async function candidatesFromPath(): Promise<string[]> {
              * Fix for https://github.com/Eskibear/node-jdk-utils/issues/15
              * /usr/bin/java is a preserved shortcut program on macOS, which is not a real java home.
              */
-            return homeDir && (!isMac || !EXCLUSIONS_ON_MAC.has(homeDir));
+            return homeDir && !(isMac && EXCLUSIONS_ON_MAC.has(homeDir));
         });
         ret.push(...homeDirs);
     }
