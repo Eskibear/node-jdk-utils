@@ -1,5 +1,8 @@
 This is changelog of node-jdk-utils project.
 
+## 0.5.1
+- Fixed: `/usr` detected as a wrong Java home on macOS. [#15](https://github.com/Eskibear/node-jdk-utils/issues/15)
+
 ## 0.5.0
 - Scan default installation directory for Zulu on Windows.[#12](https://github.com/Eskibear/node-jdk-utils/pull/12)
 - Traverse entires in env.PATH to cover all possible locations. Note, this increases disk I/O which will affect the performance depending on number of entries of env.PATH. [#13](https://github.com/Eskibear/node-jdk-utils/pull/13)
