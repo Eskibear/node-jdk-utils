@@ -67,6 +67,10 @@ export interface IOptions {
          * from Gradle locations
          */
         gradle?: boolean;
+        /**
+         * from JBang locations
+         */
+        jbang?: boolean;
     };
 }
 
