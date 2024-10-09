@@ -188,7 +188,7 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
         updateCandidates(fromJabba, (r) => ({ ...r, isFromJabba: true }));
     }
 
-    // asdf
+    // jbang
     if (!options?.skipFrom?.jbang) {
         const fromJBang = await jbang.candidates();
         updateCandidates(fromJBang, (r) => ({ ...r, isFromJBang: true }));
