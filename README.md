@@ -20,6 +20,7 @@ Covering:
 * JDK-like paths from `PATH`.
 * SDKMAN installation location.
 * jabba installation location, i.e. `~/.jabba/jdk`
+* [JBang](https://jbang.dev/) installation location, i.e. `~/.jbang/cache/jdks`
 * ASDF installation location.
 * JDK installations managed by [Gradle](https://docs.gradle.org/8.1/userguide/toolchains.html), e.g. `~/.gradle/jdk`
 * Links specified in jEnv.

@@ -1,6 +1,7 @@
 import * as cp from "child_process";
 import * as fs from "fs";
 import * as path from "path";
+import * as jbang from "./from/jbang";
 import * as asdf from "./from/asdf";
 import * as envs from "./from/envs";
 import * as gradle from "./from/gradle";
@@ -66,6 +67,10 @@ export interface IOptions {
          * from Gradle locations
          */
         gradle?: boolean;
+        /**
+         * from JBang locations
+         */
+        jbang?: boolean;
     };
 }
 
@@ -106,6 +111,7 @@ export interface IJavaRuntime {
     isFromSDKMAN?: boolean;
     isFromJENV?: boolean;
     isFromJabba?: boolean;
+    isFromJBang?: boolean;
     isFromASDF?: boolean;
     isFromGradle?: boolean;
 }
@@ -182,6 +188,11 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
         updateCandidates(fromJabba, (r) => ({ ...r, isFromJabba: true }));
     }
 
+    // jbang
+    if (!options?.skipFrom?.jbang) {
+        const fromJBang = await jbang.candidates();
+        updateCandidates(fromJBang, (r) => ({ ...r, isFromJBang: true }));
+    }
     // asdf
     if (!options?.skipFrom?.asdf) {
         const fromASDF = await asdf.candidates();
@@ -248,6 +259,10 @@ export async function getRuntime(homedir: string, options?: IOptions): Promise<I
         if (gList.includes(homedir)) {
             runtime.isFromGradle = true;
         }
+        const jbangList = await jbang.candidates();
+        if (jbangList.includes(homedir)) {
+            runtime.isFromJBang = true;
+        }
         const aList = await asdf.candidates();
         if (aList.includes(homedir)) {
             runtime.isFromASDF = true;
@@ -303,6 +318,9 @@ export function getSources(r: IJavaRuntime): string[] {
     }
     if (r.isFromJabba) {
         sources.push("jabba");
+    }
+    if (r.isFromJBang) {
+        sources.push("JBang");
     }
     if (r.isFromASDF) {
         sources.push("asdf");
