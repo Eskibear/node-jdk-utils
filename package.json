@@ -1,6 +1,6 @@
 {
   "name": "jdk-utils",
-  "version": "0.5.1",
+  "version": "0.6.0",
   "description": "JDK related utils for Java related development.",
   "main": "dist/index.js",
   "bin": "bin/cli.js",

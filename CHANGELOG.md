@@ -1,5 +1,8 @@
 This is changelog of node-jdk-utils project.
 
+## 0.6.0
+- Added support for jBang. [#18](https://github.com/Eskibear/node-jdk-utils/pull/18)
+
 ## 0.5.1
 - Fixed: `/usr` detected as a wrong Java home on macOS. [#15](https://github.com/Eskibear/node-jdk-utils/issues/15)
 
