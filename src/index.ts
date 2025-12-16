@@ -10,6 +10,7 @@ import * as jabba from "./from/jabba";
 import * as jenv from "./from/jenv";
 import * as linux from "./from/linux";
 import * as macOS from "./from/macOS";
+import * as mise from "./from/mise";
 import * as sdkman from "./from/sdkman";
 import * as windows from "./from/windows";
 import * as logger from "./logger";
@@ -64,6 +65,10 @@ export interface IOptions {
          */
         asdf?: boolean;
         /**
+         * from mise
+         */
+        mise?: boolean;
+        /**
          * from Gradle locations
          */
         gradle?: boolean;
@@ -113,6 +118,7 @@ export interface IJavaRuntime {
     isFromJabba?: boolean;
     isFromJBang?: boolean;
     isFromASDF?: boolean;
+    isFromMise?: boolean;
     isFromGradle?: boolean;
 }
 
@@ -199,6 +205,12 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
         updateCandidates(fromASDF, (r) => ({ ...r, isFromASDF: true }));
     }
 
+    // mise
+    if (!options?.skipFrom?.mise) {
+        const fromMise = await mise.candidates();
+        updateCandidates(fromMise, (r) => ({ ...r, isFromMise: true }));
+    }
+
     // Gradle
     if (!options?.skipFrom?.gradle) {
         const fromGradle = await gradle.candidates();
@@ -267,6 +279,10 @@ export async function getRuntime(homedir: string, options?: IOptions): Promise<I
         if (aList.includes(homedir)) {
             runtime.isFromASDF = true;
         }
+        const mList = await mise.candidates();
+        if (mList.includes(homedir)) {
+            runtime.isFromMise = true;
+        }
         const jList = await jenv.candidates();
         if (jList.includes(homedir)) {
             runtime.isFromJENV = true;
@@ -324,6 +340,9 @@ export function getSources(r: IJavaRuntime): string[] {
     }
     if (r.isFromASDF) {
         sources.push("asdf");
+    }
+    if (r.isFromMise) {
+        sources.push("mise");
     }
     if (r.isFromGradle) {
         sources.push("Gradle");
