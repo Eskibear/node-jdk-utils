@@ -22,7 +22,7 @@ Covering:
 * jabba installation location, i.e. `~/.jabba/jdk`
 * [JBang](https://jbang.dev/) installation location, i.e. `~/.jbang/cache/jdks`
 * ASDF installation location.
-* mise installation location.
+* [mise](https://mise.jdx.dev/lang/java.html) installation location, i.e. `~/.local/share/mise/installs/java`.
 * JDK installations managed by [Gradle](https://docs.gradle.org/8.1/userguide/toolchains.html), e.g. `~/.gradle/jdk`
 * Links specified in jEnv.
 * Homebrew installation:
