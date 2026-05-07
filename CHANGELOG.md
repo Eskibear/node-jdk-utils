@@ -1,5 +1,10 @@
 This is changelog of node-jdk-utils project.
 
+## 0.6.1
+- Added support for mise. [#21](https://github.com/Eskibear/node-jdk-utils/pull/21)
+- Fixed Dependabot vulnerability alerts. [#23](https://github.com/Eskibear/node-jdk-utils/pull/23)
+- Switched npm publish workflow to OIDC trusted publishing. [#24](https://github.com/Eskibear/node-jdk-utils/pull/24)
+
 ## 0.6.0
 - Added support for jBang. [#18](https://github.com/Eskibear/node-jdk-utils/pull/18)
 
