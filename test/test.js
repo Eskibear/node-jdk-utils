@@ -1,5 +1,8 @@
 'use strict'
 const expect = require("chai").expect;
+const fs = require("fs");
+const os = require("os");
+const path = require("path");
 
 describe("test this module", () => {
     const utils = require("../dist/index");
@@ -60,5 +63,21 @@ describe("test this module", () => {
         const jdks = await utils.findRuntimes({ withTags: true, withVersion: true, checkJavac: true });
         console.timeEnd(label);
         jdks.forEach(jdk => console.log(jdk.homedir, utils.getSources(jdk)));
+    });
+
+    it("should pick up JDKs from additionalLocations", async () => {
+        const isWindows = process.platform.indexOf("win") === 0;
+        const javaBinName = isWindows ? "java.exe" : "java";
+        const tempRoot = await fs.promises.mkdtemp(path.join(os.tmpdir(), "jdk-utils-test-"));
+        const fakeHome = path.join(tempRoot, "fake-jdk-21");
+        await fs.promises.mkdir(path.join(fakeHome, "bin"), { recursive: true });
+        await fs.promises.writeFile(path.join(fakeHome, "bin", javaBinName), "");
+        try {
+            const jdks = await utils.findRuntimes({ additionalLocations: [tempRoot] });
+            const homedirs = jdks.map(j => j.homedir);
+            expect(homedirs).to.include(fakeHome);
+        } finally {
+            await fs.promises.rm(tempRoot, { recursive: true, force: true });
+        }
     });
 });
