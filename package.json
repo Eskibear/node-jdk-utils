@@ -29,5 +29,10 @@
     "diff": "^8.0.3",
     "js-yaml": "^4.1.1",
     "serialize-javascript": "^7.0.5"
+  },
+  "overrideComments": {
+    "diff": "Force >=8.0.3 to fix GHSA-73rr-hh4g-fpgx (DoS in parsePatch/applyPatch); mocha@11.7.5 declares diff ^7.0.0 which resolves to a vulnerable version.",
+    "js-yaml": "Force >=4.1.1 to fix GHSA-mh29-5h37-fv8m (prototype pollution in merge '<<'); mocha@11.7.5 declares js-yaml ^4.1.0 which resolves to vulnerable 4.1.0.",
+    "serialize-javascript": "Force >=7.0.5 to fix GHSA-5c6j-r48x-rmvq, GHSA-qj8w-gfj5-8c6v, GHSA-76p7-773f-r4q5 (RCE, DoS, XSS); mocha@11.7.5 declares serialize-javascript ^6.0.2 which resolves to a vulnerable version."
   }
 }
