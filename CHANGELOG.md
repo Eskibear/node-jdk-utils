@@ -1,5 +1,10 @@
 This is changelog of node-jdk-utils project.
 
+## 0.7.0
+- Added `additionalLocations` option for `findRuntimes` so consumers can supply extra parent folders to scan for Java Homes. [#19](https://github.com/Eskibear/node-jdk-utils/issues/19) ([#26](https://github.com/Eskibear/node-jdk-utils/pull/26))
+- Detect SDKMAN installed via Homebrew (`brew install sdkman-cli`). [#22](https://github.com/Eskibear/node-jdk-utils/issues/22) ([#25](https://github.com/Eskibear/node-jdk-utils/pull/25))
+- Fixed: SDKMAN candidates whose `bin/java` is a symlink into a nested `Contents/Home` (e.g. Zulu on macOS) now report the real Java Home, fixing Gradle daemon JAVA_HOME mismatches. [#17](https://github.com/Eskibear/node-jdk-utils/issues/17) ([#27](https://github.com/Eskibear/node-jdk-utils/pull/27))
+
 ## 0.6.1
 - Added support for mise. [#21](https://github.com/Eskibear/node-jdk-utils/pull/21)
 - Fixed Dependabot vulnerability alerts. [#23](https://github.com/Eskibear/node-jdk-utils/pull/23)
