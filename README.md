@@ -36,6 +36,13 @@ Covering:
 
 Note: If you want to skip scanning a certain source for better performance, you can specify `skipFrom` options when calling the API.
 
+If you want to extend coverage without waiting for a new release, pass `additionalLocations` when calling the API. Each entry is a **parent folder** of possible Java Homes (not a Java Home itself); the lookup is shallow (direct subdirectories only).
+
+```ts
+import { findRuntimes } from "jdk-utils";
+await findRuntimes({ additionalLocations: ["/opt/my-jdks"] });
+```
+
 #### CLI
 
 Below command lists all detected JDKs with details.

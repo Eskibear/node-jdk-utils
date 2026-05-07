@@ -3,6 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as jbang from "./from/jbang";
 import * as asdf from "./from/asdf";
+import * as custom from "./from/custom";
 import * as envs from "./from/envs";
 import * as gradle from "./from/gradle";
 import * as homebrew from "./from/homebrew";
@@ -31,6 +32,16 @@ export interface IOptions {
      * whether to include tags for detailed information
      */
     withTags?: boolean;
+
+    /**
+     * Additional parent folders to scan for Java Homes.
+     *
+     * Each entry is treated as a parent folder of possible Java Homes (not a
+     * Java Home itself). Lookup is shallow: only direct subdirectories are
+     * considered. Useful when consumers want to extend coverage without
+     * waiting for a new release of this library.
+     */
+    additionalLocations?: string[];
 
     /**
      * whether to skip resolving from a specific source
@@ -216,7 +227,13 @@ export async function findRuntimes(options?: IOptions): Promise<IJavaRuntime[]> 
         const fromGradle = await gradle.candidates();
         updateCandidates(fromGradle, (r) => ({ ...r, isFromGradle: true }));
     }
-    
+
+    // user-supplied additional parent folders
+    if (options?.additionalLocations?.length) {
+        const fromCustom = await custom.candidates(options.additionalLocations);
+        updateCandidates(fromCustom);
+    }
+
     // dedup and construct runtimes
     let runtimes: IJavaRuntime[] = options?.withTags ? store.allRuntimes()
         : deDup(candidates).map((homedir) => ({ homedir }));
